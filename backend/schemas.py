@@ -1,7 +1,8 @@
 
 from pydantic import BaseModel, Field
-from typing import Optional
-from typing import Literal
+from typing import Optional, Literal
+from datetime import datetime
+
 
 # Citizen complaint submission
 class ReportCreate(BaseModel):
@@ -20,18 +21,33 @@ class ReportCreate(BaseModel):
 # Processed incident response
 class IncidentResponse(BaseModel):
     id: int
+    source_report_id: Optional[int] = None
+
+    # AI extraction results - Member 2
     incident_type: str
     description: str
+    transport_mode: str = "unknown"
+    severity: str
+    sentiment: str = "neutral"
+    processing_method: str
 
+    # Location intelligence - Member 3
     location_name: Optional[str] = None
     latitude: Optional[float] = None
     longitude: Optional[float] = None
+    location_confidence: float = 0.0
 
-    severity: str
+    # Duplicate detection
+    duplicate_group: Optional[str] = None
+
+    # Priority intelligence
     priority_score: float
+    priority_level: str = "low"
+    priority_explanation: Optional[str] = None
 
+    # Authority verification
     verification_status: str
-    processing_method: str
+    created_at: Optional[datetime] = None
 
     class Config:
         from_attributes = True
@@ -43,8 +59,9 @@ class ReportResponse(BaseModel):
     report_id: str
     message: str
     incident: Optional[IncidentResponse] = None
-    
-    
+
+
+# Incident verification status update
 class IncidentStatusUpdate(BaseModel):
     verification_status: Literal[
         "unverified",

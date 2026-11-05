@@ -25,12 +25,11 @@ def create_report(
             db=db
         )
 
-        return {
-            **result,
-            "incident": None
-        }
+        return result
 
-    except Exception:
+    except Exception as error:
+        print(f"Report processing failed: {error}")
+
         raise HTTPException(
             status_code=500,
             detail="Unable to process the citizen report"
