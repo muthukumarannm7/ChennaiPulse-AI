@@ -1,7 +1,7 @@
 
 from pydantic import BaseModel, Field
 from typing import Optional
-
+from typing import Literal
 
 # Citizen complaint submission
 class ReportCreate(BaseModel):
@@ -43,3 +43,12 @@ class ReportResponse(BaseModel):
     report_id: str
     message: str
     incident: Optional[IncidentResponse] = None
+    
+    
+class IncidentStatusUpdate(BaseModel):
+    verification_status: Literal[
+        "unverified",
+        "verified",
+        "rejected",
+        "resolved"
+    ]

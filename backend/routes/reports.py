@@ -1,11 +1,11 @@
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from uuid import uuid4
 
 from database import get_db
 from models import Report
 from schemas import ReportCreate, ReportResponse
+from services.report_service import create_citizen_report
 
 router = APIRouter(
     prefix="/api/reports",
@@ -19,35 +19,23 @@ def create_report(
     db: Session = Depends(get_db)
 ):
     try:
-        # Generate a unique report ID
-        report_id = f"RPT-{uuid4().hex[:8].upper()}"
-
-        # Create database record
-        new_report = Report(
-            report_code=report_id,
-            description=report_data.text,
-            language=report_data.language
+        result = create_citizen_report(
+            report_text=report_data.text,
+            language=report_data.language,
+            db=db
         )
 
-        # Save report
-        db.add(new_report)
-        db.commit()
-        db.refresh(new_report)
-
         return {
-            "success": True,
-            "report_id": report_id,
-            "message": "Citizen report submitted successfully",
+            **result,
             "incident": None
         }
 
-    except Exception as error:
-        db.rollback()
+    except Exception:
         raise HTTPException(
             status_code=500,
-            detail="Unable to save the report"
+            detail="Unable to process the citizen report"
         )
-        
+
 
 @router.get("/")
 def get_reports(db: Session = Depends(get_db)):
